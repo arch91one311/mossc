@@ -194,7 +194,14 @@ export function MessageBubble({ message, showSenderInfo = false, onAgentAvatarCl
 
 function MessageContent({ content, mentions, showRaw }: { content: string; mentions?: string[]; showRaw?: boolean }) {
   const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === "dark"
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Use light theme until mounted to avoid SSR/client hydration mismatch
+  const isDark = mounted && resolvedTheme === "dark"
 
   if (showRaw) {
     return (
