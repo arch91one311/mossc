@@ -8,16 +8,17 @@
     "create": "Créer",
     "creating": "Création",
     "save": "Enregistrer",
-    "saving": "Enregistrement...",
+    "saving": "Enregistrement",
     "confirm": "Confirmer",
     "delete": "Supprimer",
     "deleting": "Suppression",
     "justNow": "À l'instant",
-    "me": "moi",
+    "me": "Moi",
     "meHuman": "Moi (humain)",
     "memberCount": "{{count}} membres",
     "selectedCount": "{{count}} sélectionnés",
     "searchPlaceholder": "Rechercher...",
+    "back": "Retour",
     "loading": "Chargement..."
   },
   "nav": {
@@ -34,7 +35,13 @@
       "error": "Erreur de connexion"
     },
     "selectEngine": "Choisir le moteur",
-    "comingSoon": "Bientôt disponible"
+    "comingSoon": "Bientôt disponible",
+    "theme": {
+      "light": "Clair",
+      "dark": "Sombre",
+      "system": "Système",
+      "toggle": "Changer le thème"
+    }
   },
   "settings": {
     "backToApp": "Retour à MossC",

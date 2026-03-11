@@ -8,7 +8,7 @@
     "create": "إنشاء",
     "creating": "جارٍ الإنشاء",
     "save": "حفظ",
-    "saving": "جارٍ الحفظ...",
+    "saving": "جارٍ الحفظ",
     "confirm": "تأكيد",
     "delete": "حذف",
     "deleting": "جارٍ الحذف",
@@ -18,6 +18,7 @@
     "memberCount": "{{count}} أعضاء",
     "selectedCount": "{{count}} محدد",
     "searchPlaceholder": "بحث...",
+    "back": "رجوع",
     "loading": "جارٍ التحميل..."
   },
   "nav": {
@@ -34,7 +35,13 @@
       "error": "خطأ في الاتصال"
     },
     "selectEngine": "اختر المحرك",
-    "comingSoon": "قريبًا"
+    "comingSoon": "قريبًا",
+    "theme": {
+      "light": "فاتح",
+      "dark": "داكن",
+      "system": "تلقائي",
+      "toggle": "تبديل السمة"
+    }
   },
   "settings": {
     "backToApp": "العودة إلى MossC",

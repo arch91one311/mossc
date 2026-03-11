@@ -8,16 +8,17 @@
     "create": "作成",
     "creating": "作成中",
     "save": "保存",
-    "saving": "保存中...",
+    "saving": "保存中",
     "confirm": "確認",
     "delete": "削除",
     "deleting": "削除中",
     "justNow": "たった今",
-    "me": "あなた",
+    "me": "私",
     "meHuman": "私（人間）",
     "memberCount": "{{count}}人のメンバー",
     "selectedCount": "{{count}}件選択",
     "searchPlaceholder": "検索...",
+    "back": "戻る",
     "loading": "読み込み中..."
   },
   "nav": {
@@ -34,7 +35,13 @@
       "error": "接続エラー"
     },
     "selectEngine": "エンジンを選択",
-    "comingSoon": "近日対応"
+    "comingSoon": "近日対応",
+    "theme": {
+      "light": "ライト",
+      "dark": "ダーク",
+      "system": "システム",
+      "toggle": "テーマを切替"
+    }
   },
   "settings": {
     "backToApp": "MossC に戻る",

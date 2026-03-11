@@ -8,16 +8,17 @@
     "create": "Create",
     "creating": "Creating",
     "save": "Save",
-    "saving": "Saving...",
+    "saving": "Saving",
     "confirm": "Confirm",
     "delete": "Delete",
     "deleting": "Deleting",
     "justNow": "Just now",
-    "me": "you",
+    "me": "Me",
     "meHuman": "Me (Human)",
     "memberCount": "{{count}} members",
     "selectedCount": "{{count}} selected",
     "searchPlaceholder": "Search...",
+    "back": "Back",
     "loading": "Loading..."
   },
   "nav": {
@@ -39,6 +40,12 @@
     "comingSoon": "Coming soon",
     "gateway": {
       "configure": "Configure Gateway..."
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "toggle": "Toggle theme"
     }
   },
   "settings": {

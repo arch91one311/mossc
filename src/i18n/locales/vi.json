@@ -8,16 +8,17 @@
     "create": "Tạo",
     "creating": "Đang tạo",
     "save": "Lưu",
-    "saving": "Đang lưu...",
+    "saving": "Đang lưu",
     "confirm": "Xác nhận",
     "delete": "Xóa",
     "deleting": "Đang xóa",
     "justNow": "Vừa xong",
-    "me": "tôi",
+    "me": "Tôi",
     "meHuman": "Tôi (người)",
     "memberCount": "{{count}} thành viên",
     "selectedCount": "Đã chọn {{count}}",
     "searchPlaceholder": "Tìm kiếm...",
+    "back": "Quay lại",
     "loading": "Đang tải..."
   },
   "nav": {
@@ -34,7 +35,13 @@
       "error": "Lỗi kết nối"
     },
     "selectEngine": "Chọn engine",
-    "comingSoon": "Sắp hỗ trợ"
+    "comingSoon": "Sắp hỗ trợ",
+    "theme": {
+      "light": "Sáng",
+      "dark": "Tối",
+      "system": "Hệ thống",
+      "toggle": "Chuyển giao diện"
+    }
   },
   "settings": {
     "backToApp": "Quay lại MossC",

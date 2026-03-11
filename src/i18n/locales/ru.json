@@ -8,16 +8,17 @@
     "create": "Создать",
     "creating": "Создание",
     "save": "Сохранить",
-    "saving": "Сохранение...",
+    "saving": "Сохранение",
     "confirm": "Подтвердить",
     "delete": "Удалить",
     "deleting": "Удаление",
     "justNow": "Только что",
-    "me": "я",
+    "me": "Я",
     "meHuman": "Я (человек)",
     "memberCount": "{{count}} участников",
     "selectedCount": "Выбрано: {{count}}",
     "searchPlaceholder": "Поиск...",
+    "back": "Назад",
     "loading": "Загрузка..."
   },
   "nav": {
@@ -34,7 +35,13 @@
       "error": "Ошибка подключения"
     },
     "selectEngine": "Выбрать движок",
-    "comingSoon": "Скоро будет"
+    "comingSoon": "Скоро будет",
+    "theme": {
+      "light": "Светлая",
+      "dark": "Тёмная",
+      "system": "Системная",
+      "toggle": "Переключить тему"
+    }
   },
   "settings": {
     "backToApp": "Вернуться в MossC",
