@@ -1,6 +1,13 @@
 "use client"
 
-import { Download, Eye, FileText } from "lucide-react"
+import { Children, Fragment, useEffect, useRef, useState } from "react"
+import { Check, Code2, Copy, Download, Eye, FileText } from "lucide-react"
+import { useTheme } from "next-themes"
+import Markdown from "react-markdown"
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism"
+import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism"
+import remarkGfm from "remark-gfm"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -20,6 +27,26 @@ interface MessageBubbleProps {
 export function MessageBubble({ message, showSenderInfo = false, onAgentAvatarClick }: MessageBubbleProps) {
   const { t } = useI18n()
   useAvatarVersion()
+  const [showRaw, setShowRaw] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current)
+    }
+  }, [])
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(message.content)
+      setCopied(true)
+      if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current)
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // clipboard access denied or unavailable — no-op
+    }
+  }
 
   if (message.type === "system") {
     return (
@@ -130,37 +157,181 @@ export function MessageBubble({ message, showSenderInfo = false, onAgentAvatarCl
           ) : message.type === "file" && message.fileAttachment ? (
             <FileAttachmentContent file={message.fileAttachment} text={message.content} />
           ) : (
-            <MessageContent content={message.content} mentions={message.mentions} />
+            <MessageContent content={message.content} mentions={message.mentions} showRaw={showRaw} />
           )}
         </div>
 
-        {/* Timestamp — hover only */}
-        <span className="text-[11px] text-muted-foreground/50 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-          {message.timestamp}
-        </span>
+        {/* Timestamp + action buttons — hover only */}
+        <div className="flex items-center gap-1.5 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="text-[11px] text-muted-foreground/50">
+            {message.timestamp}
+          </span>
+          {message.content && message.type !== "task-card" && message.type !== "file" && (
+            <>
+              <button
+                className="h-5 w-5 flex items-center justify-center rounded text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted transition-colors"
+                onClick={handleCopy}
+                title={copied ? t("messageBubble.copied") : t("messageBubble.copyMarkdown")}
+                aria-label={copied ? t("messageBubble.copied") : t("messageBubble.copyMarkdown")}
+              >
+                {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+              </button>
+              <button
+                className="h-5 w-5 flex items-center justify-center rounded text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted transition-colors"
+                onClick={() => setShowRaw((v) => !v)}
+                title={showRaw ? t("messageBubble.renderedMarkdown") : t("messageBubble.rawMarkdown")}
+                aria-label={showRaw ? t("messageBubble.renderedMarkdown") : t("messageBubble.rawMarkdown")}
+              >
+                {showRaw ? <Eye className="h-3 w-3" /> : <Code2 className="h-3 w-3" />}
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   )
 }
 
-function MessageContent({ content, mentions }: { content: string; mentions?: string[] }) {
-  if (!mentions?.length) {
-    return <span className="whitespace-pre-wrap">{content}</span>
+function MessageContent({ content, mentions, showRaw }: { content: string; mentions?: string[]; showRaw?: boolean }) {
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Use light theme until mounted to avoid SSR/client hydration mismatch
+  const isDark = mounted && resolvedTheme === "dark"
+
+  if (showRaw) {
+    return (
+      <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed break-words">
+        {content}
+      </pre>
+    )
   }
 
-  const parts = content.split(/(@\S+)/g)
+  const processMentions = (text: string) => {
+    if (!mentions?.length) return text
+    const parts = text.split(/(@\S+)/g)
+    if (parts.length === 1) return text
+    return parts.map((part, i) =>
+      part.startsWith("@") ? (
+        <span
+          key={i}
+          className="text-blue-500 font-medium cursor-pointer hover:underline"
+          role="link"
+          tabIndex={0}
+        >
+          {part}
+        </span>
+      ) : (
+        <Fragment key={i}>{part}</Fragment>
+      )
+    )
+  }
+
   return (
-    <span className="whitespace-pre-wrap">
-      {parts.map((part, i) =>
-        part.startsWith("@") ? (
-          <span key={i} className="text-blue-500 font-medium cursor-pointer hover:underline">
-            {part}
-          </span>
-        ) : (
-          <span key={i}>{part}</span>
-        )
-      )}
-    </span>
+    <Markdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        p({ children }) {
+          return (
+            <p className="mb-2 last:mb-0 leading-relaxed">
+              {Children.map(children, (child) =>
+                typeof child === "string" ? processMentions(child) : child
+              )}
+            </p>
+          )
+        },
+        code({ className, children, ...props }) {
+          const match = /language-(\w+)/.exec(className || "")
+          return match ? (
+            <SyntaxHighlighter
+              PreTag="div"
+              language={match[1]}
+              style={isDark ? oneDark : oneLight}
+              customStyle={{ borderRadius: "0.375rem", fontSize: "0.75rem", margin: "0.5rem 0" }}
+            >
+              {String(children).replace(/\n$/, "")}
+            </SyntaxHighlighter>
+          ) : (
+            <code className="bg-muted/80 px-1 py-0.5 rounded text-xs font-mono" {...props}>
+              {children}
+            </code>
+          )
+        },
+        pre({ children }) {
+          return <div>{children}</div>
+        },
+        ul({ children }) {
+          return <ul className="list-disc pl-4 mb-2 space-y-0.5">{children}</ul>
+        },
+        ol({ children }) {
+          return <ol className="list-decimal pl-4 mb-2 space-y-0.5">{children}</ol>
+        },
+        li({ children }) {
+          return <li className="leading-relaxed">{children}</li>
+        },
+        h1({ children }) {
+          return <h1 className="text-base font-bold mb-2 mt-3 first:mt-0">{children}</h1>
+        },
+        h2({ children }) {
+          return <h2 className="text-sm font-bold mb-1.5 mt-2.5 first:mt-0">{children}</h2>
+        },
+        h3({ children }) {
+          return <h3 className="text-sm font-semibold mb-1 mt-2 first:mt-0">{children}</h3>
+        },
+        blockquote({ children }) {
+          return (
+            <blockquote className="border-l-2 border-muted-foreground/30 pl-3 my-2 text-muted-foreground italic">
+              {children}
+            </blockquote>
+          )
+        },
+        a({ href, children }) {
+          const safeHref = href && /^(https?:\/\/|mailto:|ftp:\/\/)/.test(href) ? href : undefined
+          return (
+            <a
+              href={safeHref}
+              className="text-blue-500 hover:underline"
+              target={safeHref ? "_blank" : undefined}
+              rel="noopener noreferrer"
+            >
+              {children}
+            </a>
+          )
+        },
+        table({ children }) {
+          return (
+            <div className="overflow-x-auto my-2">
+              <table className="text-xs border-collapse w-full">{children}</table>
+            </div>
+          )
+        },
+        th({ children }) {
+          return (
+            <th className="border border-border px-2 py-1 bg-muted font-medium text-left">
+              {children}
+            </th>
+          )
+        },
+        td({ children }) {
+          return <td className="border border-border px-2 py-1">{children}</td>
+        },
+        hr() {
+          return <hr className="my-2 border-border" />
+        },
+        strong({ children }) {
+          return <strong className="font-semibold">{children}</strong>
+        },
+        em({ children }) {
+          return <em className="italic">{children}</em>
+        },
+      }}
+    >
+      {content}
+    </Markdown>
   )
 }
 
