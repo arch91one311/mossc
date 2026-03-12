@@ -17,7 +17,9 @@
     "meHuman": "Я (человек)",
     "memberCount": "{{count}} участников",
     "selectedCount": "Выбрано: {{count}}",
-    "searchPlaceholder": "Поиск..."
+    "searchPlaceholder": "Поиск...",
+    "back": "Назад",
+    "loading": "Загрузка..."
   },
   "nav": {
     "chat": "Сообщения",
@@ -33,19 +35,27 @@
       "error": "Ошибка подключения"
     },
     "selectEngine": "Выбрать движок",
-    "comingSoon": "Скоро будет"
+    "comingSoon": "Скоро будет",
+    "theme": {
+      "light": "Светлая",
+      "dark": "Тёмная",
+      "system": "Системная",
+      "toggle": "Переключить тему"
+    }
   },
   "settings": {
     "backToApp": "Вернуться в MossC",
     "sections": {
       "models": "Настройка моделей",
       "language": "Язык",
-      "community": "Сообщество"
+      "community": "Сообщество",
+      "users": "Пользователи"
     },
     "descriptions": {
       "models": "Добавьте AI-провайдеров и настройте доступные модели",
       "language": "По умолчанию используется язык браузера, но его можно сменить вручную",
-      "community": "Присоединяйтесь к официальной группе WeChat для получения обновлений и поддержки"
+      "community": "Присоединяйтесь к официальной группе WeChat для получения обновлений и поддержки",
+      "users": "Управление учётными записями и правами доступа."
     },
     "community": {
       "title": "Официальное сообщество",
@@ -124,7 +134,11 @@
     "viewDetails": "Подробнее",
     "downloadReport": "Скачать отчёт",
     "download": "Скачать",
-    "preview": "Предпросмотр"
+    "preview": "Предпросмотр",
+    "copyMarkdown": "Скопировать Markdown",
+    "copied": "Скопировано!",
+    "rawMarkdown": "Показать исходный текст",
+    "renderedMarkdown": "Показать отрисовку"
   },
   "messageInput": {
     "placeholders": {
@@ -280,5 +294,46 @@
   },
   "changelog": {
     "title": "История изменений"
+  },
+  "login": {
+    "title": "Войти в MossC",
+    "description": "Введите пароль для продолжения",
+    "passwordLabel": "Пароль",
+    "passwordPlaceholder": "Введите пароль",
+    "submit": "Войти",
+    "submitting": "Вход...",
+    "error": "Неверный пароль. Попробуйте снова.",
+    "networkError": "Ошибка сети. Проверьте подключение и повторите попытку.",
+    "logout": "Выйти",
+    "loggingOut": "Выход...",
+    "usernameLabel": "Имя пользователя",
+    "usernamePlaceholder": "Введите имя пользователя"
+  },
+  "setup": {
+    "title": "Создать аккаунт администратора",
+    "description": "Настройте первую учётную запись администратора для защиты MossC.",
+    "passwordPlaceholder": "Не менее 8 символов",
+    "confirmPasswordLabel": "Подтвердите пароль",
+    "confirmPasswordPlaceholder": "Введите пароль ещё раз",
+    "passwordMismatch": "Пароли не совпадают.",
+    "error": "Не удалось создать аккаунт администратора.",
+    "submit": "Создать аккаунт",
+    "creating": "Создание..."
+  },
+  "userManagement": {
+    "addUser": "Добавить пользователя",
+    "createUser": "Создать",
+    "createFailed": "Не удалось создать пользователя.",
+    "userList": "Пользователи",
+    "userCount": "{{count}} аккаунт(ов)",
+    "noUsers": "Пользователей нет.",
+    "roleLabel": "Роль",
+    "roleAdmin": "Администратор",
+    "roleUser": "Пользователь",
+    "changePassword": "Изменить пароль",
+    "changePasswordFailed": "Не удалось обновить пароль.",
+    "passwordChanged": "Пароль обновлён.",
+    "deleteUser": "Удалить пользователя",
+    "cannotDeleteSelf": "Нельзя удалить собственный аккаунт."
   }
 }

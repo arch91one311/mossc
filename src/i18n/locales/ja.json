@@ -17,7 +17,9 @@
     "meHuman": "私（人間）",
     "memberCount": "{{count}}人のメンバー",
     "selectedCount": "{{count}}件選択",
-    "searchPlaceholder": "検索..."
+    "searchPlaceholder": "検索...",
+    "back": "戻る",
+    "loading": "読み込み中..."
   },
   "nav": {
     "chat": "メッセージ",
@@ -33,19 +35,27 @@
       "error": "接続エラー"
     },
     "selectEngine": "エンジンを選択",
-    "comingSoon": "近日対応"
+    "comingSoon": "近日対応",
+    "theme": {
+      "light": "ライト",
+      "dark": "ダーク",
+      "system": "システム",
+      "toggle": "テーマを切替"
+    }
   },
   "settings": {
     "backToApp": "MossC に戻る",
     "sections": {
       "models": "モデル設定",
       "language": "言語",
-      "community": "コミュニティ"
+      "community": "コミュニティ",
+      "users": "ユーザー管理"
     },
     "descriptions": {
       "models": "AI プロバイダーを追加し、利用可能なモデルを設定します",
       "language": "既定ではブラウザの言語に従い、手動で切り替えることもできます",
-      "community": "公式WeChatグループに参加して最新情報やサポートを受けましょう"
+      "community": "公式WeChatグループに参加して最新情報やサポートを受けましょう",
+      "users": "ユーザーアカウントと権限を管理します。"
     },
     "community": {
       "title": "公式コミュニティ",
@@ -124,7 +134,11 @@
     "viewDetails": "詳細を見る",
     "downloadReport": "レポートをダウンロード",
     "download": "ダウンロード",
-    "preview": "プレビュー"
+    "preview": "プレビュー",
+    "copyMarkdown": "Markdownをコピー",
+    "copied": "コピーしました！",
+    "rawMarkdown": "生テキストを表示",
+    "renderedMarkdown": "レンダリングを表示"
   },
   "messageInput": {
     "placeholders": {
@@ -280,5 +294,46 @@
   },
   "changelog": {
     "title": "更新履歴"
+  },
+  "login": {
+    "title": "MossC にサインイン",
+    "description": "パスワードを入力して続行",
+    "passwordLabel": "パスワード",
+    "passwordPlaceholder": "パスワードを入力",
+    "submit": "サインイン",
+    "submitting": "サインイン中...",
+    "error": "パスワードが正しくありません。もう一度お試しください。",
+    "networkError": "ネットワークエラーです。接続を確認して再試行してください。",
+    "logout": "サインアウト",
+    "loggingOut": "サインアウト中...",
+    "usernameLabel": "ユーザー名",
+    "usernamePlaceholder": "ユーザー名を入力"
+  },
+  "setup": {
+    "title": "管理者アカウントを作成",
+    "description": "MossC インスタンスを保護するための最初の管理者アカウントを設定します。",
+    "passwordPlaceholder": "8文字以上",
+    "confirmPasswordLabel": "パスワードの確認",
+    "confirmPasswordPlaceholder": "パスワードを再入力",
+    "passwordMismatch": "パスワードが一致しません。",
+    "error": "管理者アカウントの作成に失敗しました。",
+    "submit": "アカウントを作成",
+    "creating": "作成中..."
+  },
+  "userManagement": {
+    "addUser": "ユーザーを追加",
+    "createUser": "作成",
+    "createFailed": "ユーザーの作成に失敗しました。",
+    "userList": "ユーザー一覧",
+    "userCount": "{{count}} アカウント",
+    "noUsers": "ユーザーはありません。",
+    "roleLabel": "ロール",
+    "roleAdmin": "管理者",
+    "roleUser": "一般ユーザー",
+    "changePassword": "パスワードを変更",
+    "changePasswordFailed": "パスワードの更新に失敗しました。",
+    "passwordChanged": "パスワードが更新されました。",
+    "deleteUser": "ユーザーを削除",
+    "cannotDeleteSelf": "自分のアカウントは削除できません。"
   }
 }

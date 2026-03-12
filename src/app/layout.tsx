@@ -37,6 +37,10 @@ export async function generateMetadata(): Promise<Metadata> {
       shortcut: "/mossclogo.png",
       apple: "/mossclogo.png",
     },
+    viewport: {
+      width: "device-width",
+      initialScale: 1,
+    },
   }
 }
 
@@ -49,7 +53,7 @@ export default async function RootLayout({
   const initialDirection = getLocaleDirection(initialLocale)
 
   return (
-    <html lang={initialLocale} dir={initialDirection}>
+    <html lang={initialLocale} dir={initialDirection} suppressHydrationWarning>
       <body
         className="antialiased"
       >

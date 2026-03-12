@@ -17,7 +17,9 @@
     "meHuman": "我（人类）",
     "memberCount": "{{count}} 位成员",
     "selectedCount": "已选 {{count}} 位",
-    "searchPlaceholder": "搜索..."
+    "searchPlaceholder": "搜索...",
+    "back": "返回",
+    "loading": "加载中..."
   },
   "nav": {
     "chat": "消息",
@@ -38,6 +40,12 @@
     "comingSoon": "即将支持",
     "gateway": {
       "configure": "配置 Gateway..."
+    },
+    "theme": {
+      "light": "浅色",
+      "dark": "深色",
+      "system": "跟随系统",
+      "toggle": "切换主题"
     }
   },
   "settings": {
@@ -45,12 +53,14 @@
     "sections": {
       "models": "模型配置",
       "language": "语言",
-      "community": "社区"
+      "community": "社区",
+      "users": "用户管理"
     },
     "descriptions": {
       "models": "添加 AI 模型服务商，配置可用模型",
       "language": "默认跟随浏览器语言，也可以手动切换",
-      "community": "加入官方微信群，获取最新动态和技术支持"
+      "community": "加入官方微信群，获取最新动态和技术支持",
+      "users": "管理用户账号和权限。"
     },
     "community": {
       "title": "官方社区",
@@ -70,38 +80,31 @@
     "description": "配置 MossC 连接 OpenClaw Gateway 的地址与 Token。",
     "loading": "加载中...",
     "loadFailed": "加载 Gateway 设置失败",
-
     "urlLabel": "Gateway URL",
     "urlPlaceholder": "ws://host.docker.internal:18789",
     "urlHint": "请使用 ws:// 或 wss://。在 Windows/macOS 的 Docker Desktop 中，host.docker.internal 通常指向宿主机。",
     "urlRequired": "请填写 Gateway URL",
-
     "tokenLabel": "Gateway Token",
     "tokenPlaceholder": "粘贴 Token...",
     "tokenStoredHint": "已保存 Token，留空将继续使用已保存的 Token。",
     "tokenRequiredHint": "当前未保存 Token，请输入 Token。",
     "tokenRequired": "请填写 Gateway Token",
     "tokenStoredState": "Token：{{state}}",
-
     "test": "测试连接",
     "testing": "测试中...",
     "testSuccess": "连接测试通过",
     "testFailed": "连接测试失败",
-
     "saving": "保存中...",
     "saveSuccess": "Gateway 设置已保存",
     "saveFailed": "保存 Gateway 设置失败",
-
     "domainApiModeDisabled": "Domain API 模式未开启；保存不会触发运行时重连。",
     "lastCheckedAt": "上次测试：{{checkedAt}}",
-
     "reconnect": {
       "notAttempted": "未尝试重连（{{reason}}）",
       "restarted": "已触发重连（之前状态：{{previousStatus}}）",
       "failed": "重连失败：{{error}}"
     }
   },
-
   "conversationList": {
     "title": "消息",
     "pin": "置顶",
@@ -169,7 +172,11 @@
     "viewDetails": "查看详情",
     "downloadReport": "下载报告",
     "download": "下载",
-    "preview": "预览"
+    "preview": "预览",
+    "copyMarkdown": "复制 Markdown",
+    "copied": "已复制！",
+    "rawMarkdown": "查看原始内容",
+    "renderedMarkdown": "查看渲染效果"
   },
   "messageInput": {
     "placeholders": {
@@ -328,5 +335,46 @@
   },
   "changelog": {
     "title": "更新日志"
+  },
+  "login": {
+    "title": "登录 MossC",
+    "description": "请输入密码以继续",
+    "passwordLabel": "密码",
+    "passwordPlaceholder": "请输入密码",
+    "submit": "登录",
+    "submitting": "登录中...",
+    "error": "密码错误，请重试。",
+    "networkError": "网络错误，请检查连接后重试。",
+    "logout": "退出登录",
+    "loggingOut": "退出中...",
+    "usernameLabel": "用户名",
+    "usernamePlaceholder": "请输入用户名"
+  },
+  "setup": {
+    "title": "创建管理员账号",
+    "description": "设置第一个管理员账号以保护您的 MossC 实例。",
+    "passwordPlaceholder": "至少8个字符",
+    "confirmPasswordLabel": "确认密码",
+    "confirmPasswordPlaceholder": "再次输入密码",
+    "passwordMismatch": "两次密码不一致。",
+    "error": "创建管理员账号失败，请重试。",
+    "submit": "创建账号",
+    "creating": "创建中..."
+  },
+  "userManagement": {
+    "addUser": "添加用户",
+    "createUser": "创建",
+    "createFailed": "创建用户失败。",
+    "userList": "用户列表",
+    "userCount": "共 {{count}} 个账号",
+    "noUsers": "暂无用户。",
+    "roleLabel": "角色",
+    "roleAdmin": "管理员",
+    "roleUser": "普通用户",
+    "changePassword": "修改密码",
+    "changePasswordFailed": "修改密码失败。",
+    "passwordChanged": "密码已更新。",
+    "deleteUser": "删除用户",
+    "cannotDeleteSelf": "不能删除自己的账号。"
   }
 }

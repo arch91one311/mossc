@@ -40,9 +40,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# npm lock file (project uses pnpm)
+package-lock.json
 .ace-tool/
 .claude/
 .workflow/
 AGENTS.md
 
-mvpdoc
+mvpdocpackage-lock.json

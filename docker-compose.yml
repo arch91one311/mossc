@@ -1,4 +1,4 @@
-﻿services:
+services:
   mossc:
     build:
       context: .
@@ -11,6 +11,7 @@
     environment:
       NODE_ENV: production
       OPENCLAW_STATE_DIR: /data/openclaw
+      MOSSC_SECRET: ${MOSSC_SECRET:?MOSSC_SECRET is required}
     volumes:
       # Persist OpenClaw/MossC state & settings.
       # Override with a host path like: OPENCLAW_STATE_DIR_HOST=D:/Users/you/.openclaw
@@ -19,7 +20,3 @@
 
 volumes:
   mossc-openclaw:
-
-
-
-

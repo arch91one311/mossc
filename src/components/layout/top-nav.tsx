@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Bug, Check, ChevronDown, Loader2, Wifi, WifiOff } from "lucide-react"
+import { Bug, Check, ChevronDown, Loader2, LogOut, Wifi, WifiOff } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n"
@@ -21,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { GatewayConfigDialog } from "./gateway-config-dialog"
+import { ThemeToggle } from "./theme-toggle"
 
 const connectionColors: Record<string, string> = {
   connected: "text-green-600",
@@ -36,8 +38,31 @@ interface TopNavProps {
 export function TopNav({ onVersionClick }: TopNavProps) {
   const { state } = useApp()
   const { t } = useI18n()
+  const router = useRouter()
   const { summary, loadSummary } = useConnectionSummary()
   const [gatewayDialogOpen, setGatewayDialogOpen] = useState(false)
+  const [currentUser, setCurrentUser] = useState<{ id: string; username: string; role: "admin" | "user" } | null>(null)
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => res.json() as Promise<{ id?: string; username?: string; role?: string }>)
+      .then((data) => {
+        if (data.id) setCurrentUser({ id: data.id, username: data.username ?? "", role: (data.role ?? "user") as "admin" | "user" })
+      })
+      .catch(() => { /* ignore */ })
+  }, [])
+
+  const handleLogout = async () => {
+    setLoggingOut(true)
+    try {
+      await fetch("/api/auth/logout", { method: "POST" })
+      router.push("/login")
+      router.refresh()
+    } catch {
+      setLoggingOut(false)
+    }
+  }
 
   const engineOptions = [
     { id: "openclaw", name: "OpenClaw", active: true },
@@ -66,7 +91,7 @@ export function TopNav({ onVersionClick }: TopNavProps) {
 
   return (
     <header className="flex h-14 items-center border-b bg-background px-4 gap-4">
-      <div className="flex items-center">
+      <div className="flex items-center shrink-0">
         <Image src="/mossclogo.png" alt="MossC" width={140} height={32} className="h-8 w-auto" priority />
       </div>
 
@@ -85,8 +110,8 @@ export function TopNav({ onVersionClick }: TopNavProps) {
           ) : (
             <WifiOff className="h-3.5 w-3.5" />
           )}
-          <span>{connInfo.label}</span>
-          {versionLabel ? <span className="text-muted-foreground">{versionLabel}</span> : null}
+          <span className="hidden sm:inline">{connInfo.label}</span>
+          {versionLabel ? <span className="hidden md:inline text-muted-foreground">{versionLabel}</span> : null}
           <ChevronDown className="h-3 w-3 text-muted-foreground" />
         </DropdownMenuTrigger>
 
@@ -138,6 +163,7 @@ export function TopNav({ onVersionClick }: TopNavProps) {
       <div className="flex-1" />
 
       <div className="flex items-center gap-1 shrink-0">
+        <ThemeToggle />
         <span
           role="button"
           tabIndex={0}
@@ -157,9 +183,27 @@ export function TopNav({ onVersionClick }: TopNavProps) {
             className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "h-8 text-muted-foreground")}
           >
             <Bug className="h-4 w-4" />
-            <span>{t("header.bugFeedback")}</span>
+            <span className="hidden sm:inline">{t("header.bugFeedback")}</span>
           </a>
         ) : null}
+        {currentUser && (
+          <button
+            onClick={() => void handleLogout()}
+            disabled={loggingOut}
+            title={loggingOut ? t("login.loggingOut") : `${currentUser.username} — ${t("login.logout")}`}
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "sm" }),
+              "h-8 text-muted-foreground gap-1.5 disabled:opacity-50"
+            )}
+          >
+            {loggingOut ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <LogOut className="h-4 w-4" />
+            )}
+            <span className="text-xs max-w-24 truncate">{currentUser.username}</span>
+          </button>
+        )}
       </div>
     </header>
   )
