@@ -1,4 +1,7 @@
+import crypto from "node:crypto";
 import { randomUUID } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 
 import { WebSocket } from "ws";
 
@@ -9,6 +12,7 @@ import type {
   GatewayEventFrame,
   GatewayResponseFrame,
 } from "@/lib/controlplane/contracts";
+import { resolveStateDir } from "@/lib/openclaw/paths";
 import { loadStudioSettings } from "@/lib/studio/settings-store";
 
 const CONNECT_TIMEOUT_MS = 8_000;
@@ -113,6 +117,75 @@ const loadGatewaySettings = (): ControlPlaneGatewaySettings => {
     throw new Error("Control-plane start failed: Studio gateway token is not configured.");
   }
   return { url, token };
+};
+
+type DeviceKeypair = {
+  deviceId: string;
+  publicKeyPem: string;
+  privateKeyPem: string;
+  publicKeyBase64Url: string;
+};
+
+const ED25519_SPKI_PREFIX_LEN = 12;
+
+const loadDeviceKeypair = (): DeviceKeypair | null => {
+  try {
+    const identityPath = path.join(resolveStateDir(), "identity", "device.json");
+    const raw = fs.readFileSync(identityPath, "utf-8");
+    const parsed: unknown = JSON.parse(raw);
+    if (!isObject(parsed)) return null;
+    if (typeof parsed.deviceId !== "string") return null;
+    if (typeof parsed.publicKeyPem !== "string") return null;
+    if (typeof parsed.privateKeyPem !== "string") return null;
+
+    // Extract raw 32-byte Ed25519 public key from SPKI PEM → base64url
+    const pubKey = crypto.createPublicKey(parsed.publicKeyPem as string);
+    const spkiDer = pubKey.export({ type: "spki", format: "der" });
+    const rawPubKey = spkiDer.subarray(ED25519_SPKI_PREFIX_LEN);
+    const publicKeyBase64Url = (rawPubKey as Buffer).toString("base64url");
+
+    return {
+      deviceId: parsed.deviceId as string,
+      publicKeyPem: parsed.publicKeyPem as string,
+      privateKeyPem: parsed.privateKeyPem as string,
+      publicKeyBase64Url,
+    };
+  } catch {
+    return null;
+  }
+};
+
+const signDeviceAuth = (
+  keypair: DeviceKeypair,
+  params: {
+    clientId: string;
+    clientMode: string;
+    role: string;
+    scopes: string[];
+    token: string;
+    nonce: string | null;
+  }
+): { signature: string; signedAt: number; nonce: string | null } => {
+  const signedAt = Date.now();
+  const scopesStr = params.scopes.join(",");
+  const version = params.nonce ? "v2" : "v1";
+  const parts = [
+    version,
+    keypair.deviceId,
+    params.clientId,
+    params.clientMode,
+    params.role,
+    scopesStr,
+    String(signedAt),
+    params.token,
+  ];
+  if (version === "v2") {
+    parts.push(params.nonce ?? "");
+  }
+  const payload = parts.join("|");
+  const privateKey = crypto.createPrivateKey(keypair.privateKeyPem);
+  const sig = crypto.sign(null, Buffer.from(payload, "utf-8"), privateKey);
+  return { signature: (sig as Buffer).toString("base64url"), signedAt, nonce: params.nonce };
 };
 
 export type OpenClawAdapterOptions = {
@@ -272,7 +345,9 @@ export class OpenClawGatewayAdapter {
         if (!parsed) return;
         if (parsed.type === "event") {
           if (parsed.event === "connect.challenge") {
-            this.sendConnectRequest(settings.token);
+            const challengePayload = isObject(parsed.payload) ? parsed.payload : {};
+            const nonce = typeof challengePayload.nonce === "string" ? challengePayload.nonce : null;
+            this.sendConnectRequest(settings.token, nonce);
             return;
           }
           this.emitEvent({
@@ -342,38 +417,63 @@ export class OpenClawGatewayAdapter {
     }, delay);
   }
 
-  private sendConnectRequest(token: string): void {
+  private sendConnectRequest(token: string, challengeNonce: string | null = null): void {
     const ws = this.ws;
     if (!ws || ws.readyState !== WebSocket.OPEN || this.connectRequestId) return;
     const legacy = this.useLegacyControlUiProfile;
+    const clientId = legacy ? CONNECT_CLIENT_ID_LEGACY : CONNECT_CLIENT_ID_BACKEND;
+    const clientMode = legacy ? CONNECT_CLIENT_MODE_LEGACY : CONNECT_CLIENT_MODE_BACKEND;
     const id = String(this.nextRequestNumber++);
     this.connectRequestId = id;
+    const scopes = [
+      "operator.admin",
+      "operator.read",
+      "operator.write",
+      "operator.approvals",
+      "operator.pairing",
+    ];
     try {
+      const keypair = loadDeviceKeypair();
+      const params: Record<string, unknown> = {
+        minProtocol: CONNECT_PROTOCOL,
+        maxProtocol: CONNECT_PROTOCOL,
+        client: {
+          id: clientId,
+          version: "dev",
+          platform: legacy ? CONNECT_CLIENT_PLATFORM_LEGACY : CONNECT_CLIENT_PLATFORM_BACKEND,
+          mode: clientMode,
+        },
+        role: "operator",
+        scopes,
+        caps: CONNECT_CAPABILITIES,
+        auth: { token },
+      };
+      if (keypair) {
+        const signed = signDeviceAuth(keypair, {
+          clientId,
+          clientMode,
+          role: "operator",
+          scopes,
+          token,
+          nonce: challengeNonce,
+        });
+        const device: Record<string, unknown> = {
+          id: keypair.deviceId,
+          publicKey: keypair.publicKeyBase64Url,
+          signature: signed.signature,
+          signedAt: signed.signedAt,
+        };
+        if (signed.nonce) {
+          device.nonce = signed.nonce;
+        }
+        params.device = device;
+      }
       ws.send(
         JSON.stringify({
           type: "req",
           id,
           method: "connect",
-          params: {
-            minProtocol: CONNECT_PROTOCOL,
-            maxProtocol: CONNECT_PROTOCOL,
-            client: {
-              id: legacy ? CONNECT_CLIENT_ID_LEGACY : CONNECT_CLIENT_ID_BACKEND,
-              version: "dev",
-              platform: legacy ? CONNECT_CLIENT_PLATFORM_LEGACY : CONNECT_CLIENT_PLATFORM_BACKEND,
-              mode: legacy ? CONNECT_CLIENT_MODE_LEGACY : CONNECT_CLIENT_MODE_BACKEND,
-            },
-            role: "operator",
-            scopes: [
-              "operator.admin",
-              "operator.read",
-              "operator.write",
-              "operator.approvals",
-              "operator.pairing",
-            ],
-            caps: CONNECT_CAPABILITIES,
-            auth: { token },
-          },
+          params,
         })
       );
     } catch (err) {
