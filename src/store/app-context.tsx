@@ -40,6 +40,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const stateRef = useRef(state)
   stateRef.current = state
   const processedCoordinatorMsgsRef = useRef(new Set<string>())
+  // Queue for sequential agent dispatch in coordinator mode
+  const coordinatorQueueRef = useRef<{
+    conversationId: string
+    agentIds: string[]
+    userContent: string
+    currentIndex: number
+    startedMsgCount: number // message count when this agent was dispatched
+  } | null>(null)
 
   const handleEvent = useCallback((event: GatewayEvent) => {
     dispatch({ type: "GATEWAY_EVENT", payload: event })
@@ -109,15 +117,59 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
       })
 
-      // Send original user message to mentioned agents
-      mentionedIds.forEach((agentId, index) => {
-        const sessionKey = `agent:${agentId}:group:${conv.id}`
-        setTimeout(() => {
-          send(agentId, lastUserMsg.content, sessionKey)
-        }, index * 500)
-      })
+      // Queue sequential dispatch: send to first agent, wait for it to finish, then next
+      const msgCount = (state.messages[conv.id] ?? []).length
+      coordinatorQueueRef.current = {
+        conversationId: conv.id,
+        agentIds: mentionedIds,
+        userContent: lastUserMsg.content,
+        currentIndex: 0,
+        startedMsgCount: msgCount,
+      }
+      const firstAgentId = mentionedIds[0]
+      const sessionKey = `agent:${firstAgentId}:group:${conv.id}`
+      send(firstAgentId, lastUserMsg.content, sessionKey)
     }
   }, [state.messages, state.conversations, state.agents, send, dispatch])
+
+  // Sequential dispatch: when current agent finishes, send to next in queue
+  useEffect(() => {
+    const queue = coordinatorQueueRef.current
+    if (!queue) return
+
+    const { conversationId, agentIds, userContent, currentIndex, startedMsgCount } = queue
+    const currentAgentId = agentIds[currentIndex]
+    const msgs = state.messages[conversationId] ?? []
+
+    // Look only at messages added after we dispatched to this agent
+    const newMsgs = msgs.slice(startedMsgCount)
+
+    // Current agent is done when it has a finalized message and no streaming message
+    const hasFinalized = newMsgs.some(
+      (m) => m.senderId === currentAgentId && !m.id.startsWith("streaming-")
+    )
+    const isStillStreaming = newMsgs.some(
+      (m) => m.senderId === currentAgentId && m.id.startsWith("streaming-")
+    )
+
+    if (hasFinalized && !isStillStreaming) {
+      const nextIndex = currentIndex + 1
+      if (nextIndex < agentIds.length) {
+        // Send to next agent
+        coordinatorQueueRef.current = {
+          ...queue,
+          currentIndex: nextIndex,
+          startedMsgCount: msgs.length,
+        }
+        const nextAgentId = agentIds[nextIndex]
+        const sessionKey = `agent:${nextAgentId}:group:${conversationId}`
+        send(nextAgentId, userContent, sessionKey)
+      } else {
+        // All agents done
+        coordinatorQueueRef.current = null
+      }
+    }
+  }, [state.messages, send])
 
   useEffect(() => {
     if (initializedRef.current) return

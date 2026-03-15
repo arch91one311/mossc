@@ -18,6 +18,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
+import { CreateGroupDialog } from "./create-group-dialog"
 import { GroupAvatar } from "./group-avatar"
 import type { Conversation } from "@/types"
 
@@ -33,6 +34,7 @@ export function ConversationList({
   const { state, dispatch } = useApp()
   const { t } = useI18n()
   const [search, setSearch] = useState("")
+  const [groupDialogOpen, setGroupDialogOpen] = useState(false)
   useAvatarVersion() // re-render when avatar changes
 
   const filtered = state.conversations.filter((c) =>
@@ -212,20 +214,13 @@ export function ConversationList({
         </Button>
         <Button
           variant="ghost"
-          className="w-full h-9 px-2 text-sm text-muted-foreground justify-between cursor-not-allowed opacity-80"
-          disabled
+          className="w-full justify-start gap-2 h-9 text-sm text-muted-foreground"
+          onClick={() => setGroupDialogOpen(true)}
         >
-          <span className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            {t("conversationList.createGroup")}
-          </span>
-          <Badge
-            variant="secondary"
-            className="h-[18px] px-1.5 text-[10px] font-normal shrink-0"
-          >
-            {t("topNav.comingSoon")}
-          </Badge>
+          <Plus className="h-4 w-4" />
+          {t("conversationList.createGroup")}
         </Button>
+        <CreateGroupDialog open={groupDialogOpen} onOpenChange={setGroupDialogOpen} />
       </div>
     </div>
   )

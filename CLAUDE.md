@@ -122,3 +122,9 @@ OpenClaw Gateway v2026.3.13+ 要求 Ed25519 challenge-response 认证：
    - Gateway URL/Token 未配置 → 在 MossC 设置页面配置
    - 设备未配对 → 按上述步骤批准
    - 端口被占用 → `lsof -i :3000` 检查并 kill 旧进程
+5. **Dev server 重启 / 热更新后显示"正在连接..."**：每次 dev server 重启或代码热更新导致服务端 WebSocket 重连时，Gateway 会触发 `repair` 类型的配对请求（Pending 列表中 Flags 为 `repair`）。必须手动批准后才能恢复连接：
+   ```bash
+   openclaw devices list          # 查看 Pending 列表中 repair 请求的 requestId
+   openclaw devices approve <requestId>   # 批准后刷新页面即可
+   ```
+   修改 `openclaw.json`（如添加/删除 agent）也会触发同样的 repair 配对请求。

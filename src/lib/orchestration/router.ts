@@ -24,7 +24,11 @@ export function resolveMentionedAgentIds(
   memberIds: string[]
 ): string[] {
   return mentions
-    .map((name) => agents.find((a) => a.name === name)?.id)
+    .map((name) =>
+      agents.find(
+        (a) => a.name === name || a.id === name || a.name.startsWith(name)
+      )?.id
+    )
     .filter((id): id is string => id != null && memberIds.includes(id))
 }
 
